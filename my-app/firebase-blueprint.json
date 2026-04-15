@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "Schedule": {
+      "title": "Schedule",
+      "description": "A schedule item for the user",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The title of the schedule"
+        },
+        "time": {
+          "type": "string",
+          "description": "The time and location of the schedule"
+        },
+        "label": {
+          "type": "string",
+          "description": "The category label (e.g., UPCOMING)"
+        },
+        "uid": {
+          "type": "string",
+          "description": "The owner's user ID"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the schedule was created"
+        }
+      },
+      "required": ["title", "time", "label", "uid"]
+    }
+  },
+  "firestore": {
+    "/schedules/{scheduleId}": {
+      "schema": "Schedule",
+      "description": "Global schedules collection"
+    }
+  }
+}

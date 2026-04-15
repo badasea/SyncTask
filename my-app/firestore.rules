@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: schedules
+    // Fields:
+    //   - title: string (required, 1-100 chars)
+    //   - time: string (required, 1-100 chars)
+    //   - label: string (required, 1-50 chars)
+    //   - uid: string (required, matches auth.uid)
+    //   - createdAt: timestamp (optional)
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidSchedule(data) {
+      return data.keys().hasAll(['title', 'time', 'label', 'uid']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 100 &&
+             data.time is string && data.time.size() > 0 && data.time.size() <= 100 &&
+             data.label is string && data.label.size() > 0 && data.label.size() <= 50 &&
+             data.uid == request.auth.uid;
+    }
+
+    match /schedules/{scheduleId} {
+      // Allow reading if authenticated (for demo purposes, we filter by UID in the app)
+      allow read: if isAuthenticated();
+      
+      // Allow create if authenticated and data is valid
+      allow create: if isAuthenticated() && isValidSchedule(request.resource.data);
+      
+      // Allow update/delete only if owner
+      allow update: if isOwner(resource.data.uid) && isValidSchedule(request.resource.data);
+      allow delete: if isOwner(resource.data.uid);
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+  }
+}
