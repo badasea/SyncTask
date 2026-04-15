@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  output: "standalone",
+  //output: "standalone",
   transpilePackages: ["motion"],
 
   experimental: {},
